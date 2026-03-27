@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Checkout | SXZ Boost</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="sxz-whatsapp" content="5491112345678">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+
+<style>
+
+    body::before{
+    content:'';
+    position:fixed;
+    left:0;
+    right:0;
+    top:0;
+    height:90%;
+    pointer-events:none;
+    z-index:0;
+    background: radial-gradient(circle at top, rgba(230, 0, 58, 0.503) 0%, rgba(230,0,58,0.18) 30%, rgba(230,0,58,0.06) 45%, transparent 70%);
+}
+/* (Tu CSS — no cambié visual, solo copié la versión compacta que ya tenías) */
+:root{--bg:#0e1014;--muted:#aeb0bb;--accent-1:#00aaff;--accent-2:#00ffcc;--success:#00ffd1;--surface:rgba(255,255,255,0.02);--max-width:1000px}
+html,body{height:100%;margin:0;padding:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;background:var(--bg);color:#fff;display:flex;justify-content:center;align-items:flex-start;padding:24px}
+.checkout-card{position:relative;z-index:1;display:flex;gap:0;width:100%;max-width:var(--max-width);background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(0,0,0,0.06));border-radius:12px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,0.7)}
+.checkout-left{flex:1 1 60%;padding:28px;display:flex;flex-direction:column;gap:18px;background:linear-gradient(180deg,rgba(255,255,255,0.01),rgba(0,0,0,0.04))}
+.checkout-right{width:320px;min-width:220px;padding:20px;background:linear-gradient(180deg,rgba(255,255,255,0.01),rgba(0,0,0,0.02));border-left:1px solid rgba(255,255,255,0.03);display:flex;flex-direction:column;gap:12px;align-items:center;align-self:flex-start}
+.summary-box{background:var(--surface);padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start}
+.summary-product{font-weight:700;font-size:1rem;color:#fff}
+.summary-price{font-weight:800;font-size:1.15rem;color:var(--success)}
+.action-row{display:flex;gap:12px;margin-top:8px;align-items:center}
+.btn-pay{padding:12px 18px;border-radius:10px;border:none;background:linear-gradient(90deg,var(--accent-1),var(--accent-2));color:#000;font-weight:800;cursor:pointer;font-size:1rem;box-shadow:0 10px 30px rgba(0,170,255,0.08)}
+.btn-pay[disabled]{opacity:.6;cursor:not-allowed}
+.btn-pay.loading::after{content:'';display:inline-block;margin-left:8px;border:2px solid #fff;border-top:2px solid transparent;border-radius:50%;width:16px;height:16px;animation:spin .8s linear infinite}
+@keyframes spin{100%{transform:rotate(360deg)}}
+.btn-small{padding:8px 12px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted);cursor:pointer;font-weight:600}
+.pay-icon{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .12s}
+.pay-icon img{width:36px;height:auto;max-width:60%}
+
+/* Estilos para los datos de transferencia/wallet */
+.manual-details{font-size:.95rem;color:var(--muted);background:rgba(255,255,255,0.01);padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.02)}
+.copy-box { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); padding: 8px 12px; border-radius: 6px; margin-top: 5px; border: 1px solid rgba(255,255,255,0.05); }
+.copy-text { font-family: monospace; color: var(--accent-2); font-size: 0.9rem; }
+.btn-copy { background: none; border: 1px solid var(--accent-1); color: var(--accent-1); padding: 2px 8px; border-radius: 4px; cursor: pointer; font-size: 0.7rem; font-weight: 700; }
+.btn-copy:hover { background: var(--accent-1); color: #000; }
+
+.sxz-whatsapp-inline{display:inline-block;margin-left:8px;padding:8px 10px;border:2px solid #25D366;color:#25D366;border-radius:8px;font-weight:800;text-decoration:none}
+@media(max-width:880px){.checkout-card{flex-direction:column}.checkout-right{width:100%;min-width:unset;order:2;padding:18px}.checkout-left{order:1;padding:18px}}
+/* --- RESTAURAR STYLES: botones de cantidad, papelera, icon-btn --- */
+.icon-btn {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:36px;
+    height:36px;
+    border-radius:8px;
+    border:1px solid rgba(255,255,255,0.06);
+    background: rgba(255,255,255,0.02);
+    color:var(--muted);
+    cursor:pointer;
+    font-weight:700;
+    user-select:none;
+}
+.icon-btn:hover { transform:translateY(-2px); box-shadow:0 8px 20px rgba(0,0,0,0.6); }
+.btn-dec, .btn-inc { width:36px; height:36px; font-size:18px; }
+.btn-delete { width:36px; height:36px; color: #ff6b6b; border-color: rgba(255,107,107,0.12); background: rgba(255,107,107,0.03); }
+
+/* cart-row layout for correct alignment */
+.cart-row {
+    display:flex;
+    gap:12px;
+    background: rgba(255,255,255,0.01);
+    padding:10px;
+    border-radius:8px;
+    border:1px solid rgba(255,255,255,0.02);
+}
+.cart-thumb { width:64px; height:64px; border-radius:8px; object-fit:cover; background: rgba(255,255,255,0.02); padding:6px; }
+
+/* ensure quantity number aligns */
+.cart-row .qty-num { min-width:30px; text-align:center; font-weight:700; }
+
+/* responsive tweaks */
+@media(max-width:880px){
+    .cart-thumb { width:48px; height:48px; }
+    .icon-btn { width:32px; height:32px; }
+}
+
+/* --- Fondo principal y gradientes --- */
+body {
+    background: linear-gradient(180deg, rgba(14,16,20,1) 0%, rgba(6,8,10,1) 60%), url('/img/azul-bg-abstract.png') no-repeat center/cover;
+    background-attachment: fixed;
+}
+
+/* --- Métodos de pago: estilo de iconos y labels --- */
+.pay-icon {
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:10px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,0.04);
+    background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.02));
+    cursor:pointer;
+    transition: transform .12s, box-shadow .12s, background .12s;
+    text-align:left;
+}
+.pay-icon img { width:44px; height:auto; display:block; border-radius:6px; }
+.pay-icon .method-label { font-weight:700; color:#fff; font-size:.95rem; }
+
+/* Hover/active */
+.pay-icon:hover { transform: translateY(-6px); box-shadow:0 18px 40px rgba(0,0,0,0.6); }
+.pay-icon.active { box-shadow:0 18px 40px rgba(0,170,255,0.12); border-color:rgba(0,170,255,0.12); transform:translateY(-4px); }
+
+/* Accepted cards row */
+.accepted-row { display:flex; align-items:center; gap:12px; margin-top:12px; opacity:0.95; }
+.accepted-text { color:var(--muted); font-size:.9rem; margin-right:6px; }
+.accepted-icons .card-icon { height:28px; margin-right:8px; opacity:0.98; }
+
+/* Restore cart-row & icon-btns (qty and trash) */
+.icon-btn {
+    display:inline-flex; align-items:center; justify-content:center;
+    width:36px; height:36px; border-radius:8px;
+    border:1px solid rgba(255,255,255,0.06);
+    background: rgba(255,255,255,0.02); color:var(--muted);
+    cursor:pointer; font-weight:700; transition:all .12s;
+}
+.icon-btn:hover { transform: translateY(-3px); box-shadow:0 12px 30px rgba(0,0,0,0.6); }
+.btn-delete { color:#ff6b6b; border-color: rgba(255,107,107,0.12); background: rgba(255,107,107,0.03); }
+
+/* cart row layout */
+.cart-row { display:flex; gap:12px; align-items:center; background: rgba(255,255,255,0.01); padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.02); }
+.cart-thumb { width:64px; height:64px; border-radius:8px; object-fit:cover; background: rgba(255,255,255,0.02); padding:6px; }
+
+/* small screens */
+@media (max-width:880px) {
+    .pay-icon img { width:36px; }
+    .cart-thumb { width:48px; height:48px; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="checkout-card" role="region" aria-label="Checkout — métodos de pago">
+
+    <div class="checkout-left">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div style="display:flex;gap:12px;align-items:center;">
+        <button id="backBtn" class="btn-small" aria-label="Volver">← Volver</button>
+        <div style="font-weight:800;font-family:'Montserrat',sans-serif;">Mi carrito</div>
+        </div>
+        <div style="text-align:right">
+        <div class="summary-product" id="productName">Optimización S.O & BIOS</div>
+        <div class="summary-price" id="productPrice" data-value="50000">$50.000 ARS</div>
+        </div>
+    </div>
+
+    <div id="summaryProducts" style="display:flex;flex-direction:column;gap:12px;margin-top:12px;"></div>
+
+    <div class="summary-box" aria-live="polite" style="margin-top:8px;">
+        <div>
+        <div style="font-weight:700;color:#fff;">Detalle</div>
+        <div class="muted" id="productDetail" style="font-size:.92rem;margin-top:6px;">Optimización de sistema y BIOS.</div>
+        </div>
+        <div style="min-width:120px;text-align:right;">
+        <div class="muted" style="font-size:.88rem;">Total</div>
+        <div id="productPriceSmall" style="font-weight:800;font-size:1.05rem;color:var(--success);">$50.000 ARS</div>
+        </div>
+    </div>
+
+    <div style="margin-top:12px;">
+        <h3 style="margin:0 0 8px 0;">Seguridad y confianza</h3>
+        <ul style="padding-left:18px;color:var(--muted);margin:0;">
+        <li>Pago seguro — certificados SSL y redirección segura.</li>
+        <li>Validación manual vía WhatsApp para transferencias/crypto.</li>
+        <li>Política de reembolso: contacto en 48h tras comprobante.</li>
+        </ul>
+    </div>
+
+    <div class="method-panel" id="methodPanel" aria-live="polite" style="margin-top:12px;">
+        <div class="method-name" id="methodTitle">MercadoPago</div>
+        <div class="method-desc" id="methodDesc">Serás redirigido al checkout seguro de MercadoPago.</div>
+
+        <div id="manualDetails" class="manual-details" style="display:none;margin-top:8px;">
+            <div id="bankData" style="display:none;">
+                <p style="margin:0 0 5px 0;">Alias de Mercado Pago:</p>
+                <div class="copy-box">
+                    <span id="aliasText" class="copy-text">SXZBOOST.MP</span>
+                    <button class="btn-copy" onclick="copyValue('aliasText')">Copiar</button>
+                </div>
+            </div>
+            <div id="cryptoData" style="display:none;">
+                <p style="margin:0 0 5px 0;">Dirección USDT (BEP20):</p>
+                <div class="copy-box">
+                    <span id="walletText" class="copy-text">0x...tu_direccion_aqui</span>
+                    <button class="btn-copy" onclick="copyValue('walletText')">Copiar</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-row" style="margin-top:8px;">
+        <button class="btn-pay" id="actionPay">Pagar</button>
+        <a id="btnSendWhatsapp" class="btn-small sxz-whatsapp-inline" href="#" target="_blank" rel="noopener">Enviar comprobante</a>
+        <div style="flex:1"></div>
+        </div>
+
+        <div class="muted" id="methodNote" style="font-size:.88rem;margin-top:8px;">
+        Se aplican comisiones según el método. Si elegís transferencia o crypto, subí el comprobante por WhatsApp.
+        </div>
+
+        <div id="paypal-container"></div>
+
+    </div>
+
+    <div class="cards-accepted" style="margin-top:12px;display:flex;gap:8px;">
+        <img src="img/visa.png" alt="Visa" style="height:28px">
+        <img src="img/mastercard.png" alt="MasterCard" style="height:28px">
+        <img src="img/amex.png" alt="American Express" style="height:28px">
+    </div>
+    </div>
+
+    <aside class="checkout-right" style="width:320px;min-width:220px;padding:20px;">
+    <div class="icons-title">Elige un método</div>
+    <div class="icons-wrap" role="tablist" aria-orientation="vertical" style="margin-top:20px;display:flex;flex-direction:column;gap:12px;">
+        <button class="pay-icon active" data-method="mp" aria-label="MercadoPago" title="MercadoPago" role="tab" aria-selected="true"><img src="assets/icons/mercadopago.png" alt="MercadoPago"></button>
+        <button class="pay-icon" data-method="paypal" aria-label="PayPal" title="PayPal" role="tab" aria-selected="false"><img src="assets/icons/paypal.png" alt="PayPal"></button>
+        <button class="pay-icon" data-method="bank" aria-label="Transferencia bancaria" title="Transferencia" role="tab" aria-selected="false"><img src="assets/icons/bank.png" alt="Bank"></button>
+        <button class="pay-icon" data-method="crypto" aria-label="Criptomonedas" title="Crypto" role="tab" aria-selected="false"><img src="assets/icons/crypto.png" alt="Crypto"></button>
+    </div>
+    <div class="icons-note muted" style="margin-top:12px;color:var(--muted);">Logos oficiales — seleccioná para ver instrucciones.</div>
+    </aside>
+
+</div>
+
+<div id="sxzTooltip" style="position:fixed;display:none;z-index:9999;background:#00ffd1;color:#000;padding:5px 10px;border-radius:4px;font-weight:bold;font-size:12px;" role="status" aria-hidden="true">Copiado!</div>
+
+<script>
+/* ===============================
+    CONFIG GLOBAL
+=============================== */
+const WHATSAPP_META = document.querySelector('meta[name="sxz-whatsapp"]');
+const WHATSAPP_NUMBER = (WHATSAPP_META && WHATSAPP_META.content) ? WHATSAPP_META.content : '5491112345678';
+const WHATSAPP_BASE = `https://wa.me/${WHATSAPP_NUMBER}`;
+
+/* ===============================
+    ELEMENTOS UI
+=============================== */
+const icons = Array.from(document.querySelectorAll('.pay-icon'));
+const methodTitle = document.getElementById('methodTitle');
+const methodDesc = document.getElementById('methodDesc');
+const methodNote = document.getElementById('methodNote');
+const actionPay = document.getElementById('actionPay');
+const btnSendWhatsapp = document.getElementById('btnSendWhatsapp');
+const tooltip = document.getElementById('sxzTooltip');
+const paypalContainer = document.getElementById('paypal-container');
+const manualDetails = document.getElementById('manualDetails');
+const summaryProducts = document.getElementById('summaryProducts');
+const productNameEl = document.getElementById('productName');
+const productPriceEl = document.getElementById('productPrice');
+const productDetailEl = document.getElementById('productDetail');
+const productPriceSmallEl = document.getElementById('productPriceSmall');
+const backBtn = document.getElementById('backBtn');
+
+let activeMethod = 'mp';
+let cart = [];
+let cartTotalValue = 0;
+let paypalRendered = false;
+
+/* ===============================
+    PRODUCTS MAP
+=============================== */
+const PRODUCTS_MAP = {
+    limpieza_fisica_sin_gpu: { title: "Limpieza física profunda (SIN GPU)", price: 50000 },
+    optimizacion_so_bios: { title: "Optimización S.O & BIOS", price: 50000 },
+    optimizacion_windows_gaming: { title: "Optimización Windows & Gaming (ONLINE)", price: 40000 },
+    formateo_windows: { title: "Formateo e instalación de Windows", price: 5000 },
+    limpieza_gpu: { title: "Limpieza de GPU", price: 5 },
+    ensamble_pc: { title: "Ensamble de PC", price: 30000 },
+    rtx_3060: { title: "Placa de Video RTX 3060", price: 350000 },
+    ram_16gb: { title: "Memoria RAM 16GB", price: 45000 },
+    ssd_1tb_nvme: { title: "SSD 1TB NVMe", price: 60000 }
+};
+
+/* ===============================
+    MÉTODOS DE PAGO
+=============================== */
+const METHODS = {
+    mp: { title:'MercadoPago', desc:'Serás redirigido al checkout seguro de MercadoPago.', note:'Procesa tarjetas y pagos locales.', actionText:'Pagar con MercadoPago' },
+    paypal: { title:'PayPal', desc:'Pago internacional con tarjeta vía PayPal.', note:'Ideal para pagos internacionales.', actionText:'Pagar con PayPal' },
+    bank: { title:'Transferencia bancaria', desc:'Copiá el alias y enviá comprobante por WhatsApp.', note:'Validación manual.', actionText:'Enviar comprobante' },
+    crypto: { title:'Criptomonedas (USDT BEP20)', desc:'Envía USDT a la wallet indicada y enviá comprobante.', note:'Comisiones de red pueden aplicar.', actionText:'Enviar comprobante' }
+};
+
+/* ===============================
+    HELPERS
+=============================== */
+function formatARS(n){ return '$' + Number(n).toLocaleString('es-AR') + ' ARS'; }
+
+function showTooltipNear(target, text='¡Copiado!'){
+    tooltip.textContent = text;
+    tooltip.style.display = 'block';
+    tooltip.setAttribute('aria-hidden','false');
+    const r = target.getBoundingClientRect();
+    tooltip.style.left = (Math.max(8, r.left + (r.width/2) - 40)) + 'px';
+    tooltip.style.top = (window.scrollY + r.top - 36) + 'px';
+    tooltip.classList.add('show');
+    clearTimeout(tooltip._timer);
+    tooltip._timer = setTimeout(()=>{ tooltip.classList.remove('show'); tooltip.setAttribute('aria-hidden','true'); tooltip.style.display='none'; }, 1400);
+}
+
+// Función para copiar valores (Alias/Wallet)
+function copyValue(elementId) {
+    const text = document.getElementById(elementId).innerText;
+    navigator.clipboard.writeText(text).then(() => {
+        showTooltipNear(document.getElementById(elementId).parentElement);
+    });
+}
+
+/* ===============================
+    LOCAL STORAGE CART
+=============================== */
+const LOCAL_CART_KEY = 'sxz_cart';
+function saveCartToLocal(){ try { localStorage.setItem(LOCAL_CART_KEY, JSON.stringify(cart)); } catch(e){ console.warn('No se pudo guardar carrito en localStorage', e); } }
+function loadCartFromLocal(){ try { const raw = localStorage.getItem(LOCAL_CART_KEY); if(!raw) return null; return JSON.parse(raw); } catch(e){ return null; } }
+
+/* ===============================
+    GET CART FROM URL
+=============================== */
+function getCartFromURL(){
+    try {
+        const params = new URLSearchParams(window.location.search);
+        const raw = params.get('cart');
+        if(!raw) return [];
+        let decoded = raw;
+        try { decoded = decodeURIComponent(raw); } catch(e){}
+        const parsed = JSON.parse(decoded);
+        return parsed.map(it => {
+            const idKey = it.id && PRODUCTS_MAP[it.id] ? it.id : null; 
+            return {
+                id: idKey || null,
+                name: idKey ? PRODUCTS_MAP[idKey].title : (it.name || 'Producto'),
+                price: idKey ? PRODUCTS_MAP[idKey].price : Number(it.price || 0),
+                qty: Number(it.qty || 1),
+                img: it.img || '',
+                detail: it.detail || ''
+            };
+        }).filter(it=>it.id);
+    } catch(e){
+        console.error('Error parsing cart from URL:', e);
+        return [];
+    }
+}
+
+/* ===============================
+    RENDER CART
+=============================== */
+function renderCartSummary(){
+    summaryProducts.innerHTML = '';
+    cartTotalValue = 0;
+    if(!Array.isArray(cart) || cart.length===0){
+        const fallbackName = productNameEl.textContent || 'Producto';
+        const fallbackPrice = Number(productPriceEl.dataset.value || productPriceEl.textContent.replace(/\D/g,'') || 0);
+        cart = [{ name: fallbackName, price: fallbackPrice, img: '', qty: 1, id: null }];
+    }
+    cart.forEach((item, idx)=>{
+        if(!item.qty || item.qty < 1) item.qty = 1;
+        const unit = Number(item.price || (PRODUCTS_MAP[item.id] ? PRODUCTS_MAP[item.id].price : 0)) || 0;
+        const subtotal = unit * item.qty;
+        cartTotalValue += subtotal;
+
+        const row = document.createElement('div');
+        row.className = 'cart-row';
+        row.dataset.index = idx;
+        row.innerHTML = `
+            <img src="${item.img || 'img/ram.png'}" alt="${item.name}" class="cart-thumb" />
+            <div style="flex:1;display:flex;flex-direction:column;gap:6px;">
+                <div style="font-weight:700;color:#fff;">${item.name}</div>
+                <div style="color:var(--muted);">Precio unitario: ${formatARS(unit)}</div>
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                    <div style="display:inline-flex;gap:8px;align-items:center">
+                        <button class="icon-btn btn-dec" title="Disminuir cantidad">−</button>
+                        <div class="qty-num">${item.qty}</div>
+                        <button class="icon-btn btn-inc" title="Aumentar cantidad">+</button>
+                    </div>
+                    <div style="font-weight:800;color:var(--success)">${formatARS(subtotal)}</div>
+                </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+                <button class="icon-btn btn-delete" title="Eliminar producto" aria-label="Eliminar producto">✕</button>
+            </div>
+        `;
+        summaryProducts.appendChild(row);
+    });
+
+    productNameEl.textContent = cart.length === 1 ? cart[0].name : 'Varios productos';
+    productDetailEl.textContent = cart.length === 1 ? (cart[0].detail || cart[0].name) : cart.map(i=>i.name).join(' · ');
+    productPriceEl.textContent = formatARS(cartTotalValue);
+    productPriceEl.dataset.value = cartTotalValue;
+    productPriceSmallEl.textContent = formatARS(cartTotalValue);
+    attachRowListeners();
+    saveCartToLocal();
+    // Actualizar link de WhatsApp si el método manual está activo
+    if(activeMethod === 'bank' || activeMethod === 'crypto') updateMethodUI(activeMethod);
+}
+
+function attachRowListeners(){
+    summaryProducts.querySelectorAll('.btn-dec').forEach(btn=>{
+        btn.onclick = ()=>{
+            const idx = Number(btn.closest('.cart-row').dataset.index);
+            if(cart[idx].qty>1) cart[idx].qty--;
+            renderCartSummary();
+        };
+    });
+    summaryProducts.querySelectorAll('.btn-inc').forEach(btn=>{
+        btn.onclick = ()=>{
+            const idx = Number(btn.closest('.cart-row').dataset.index);
+            cart[idx].qty++;
+            renderCartSummary();
+        };
+    });
+    summaryProducts.querySelectorAll('.btn-delete').forEach(btn=>{
+        btn.onclick = ()=>{
+            const idx = Number(btn.closest('.cart-row').dataset.index);
+            cart.splice(idx,1);
+            renderCartSummary();
+        };
+    });
+}
+
+/* ===============================
+    MÉTODOS DE PAGO UI
+=============================== */
+function updateMethodUI(method){
+    activeMethod = method;
+    icons.forEach(btn=>btn.classList.toggle('active', btn.dataset.method===method));
+    const cfg = METHODS[method] || METHODS.mp;
+    methodTitle.textContent = cfg.title;
+    methodDesc.textContent = cfg.desc;
+    methodNote.textContent = cfg.note;
+    actionPay.textContent = cfg.actionText || actionPay.textContent;
+
+    paypalContainer.style.display = 'none';
+    manualDetails.style.display = 'none';
+    document.getElementById('bankData').style.display = 'none';
+    document.getElementById('cryptoData').style.display = 'none';
+    actionPay.style.display = 'inline-block';
+    btnSendWhatsapp.style.display = 'none';
+
+    if(method==='paypal'){
+        actionPay.style.display='none';
+        paypalContainer.style.display='block';
+        loadPaypalSdkAndRender();
+    } else if(method==='bank' || method==='crypto'){
+        actionPay.style.display='none';
+        manualDetails.style.display='block';
+        btnSendWhatsapp.style.display='inline-block';
+        
+        if(method==='bank') document.getElementById('bankData').style.display = 'block';
+        else document.getElementById('cryptoData').style.display = 'block';
+
+        if(btnSendWhatsapp){
+            const totalDisplay = formatARS(cartTotalValue);
+            let text = `Hola, te envío el comprobante de pago por ${method==='bank'?'Transferencia':'Crypto'}. Monto: ${totalDisplay}.`;
+            btnSendWhatsapp.href = `${WHATSAPP_BASE}?text=${encodeURIComponent(text)}`;
+        }
+    }
+}
+
+icons.forEach(btn=>{ 
+    btn.addEventListener('click', ()=>updateMethodUI(btn.dataset.method));
+    btn.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); btn.click(); }});
+});
+
+/* ===============================
+    PAYPAL INTEGRATION
+=============================== */
+async function loadPaypalSdkAndRender() {
+    if (paypalRendered) return;
+    try {
+        const res = await fetch('/create-preference', { method: 'GET', credentials: 'same-origin' });
+        const cfg = await res.json();
+        
+        if (!cfg.clientId) {
+            console.error('Error: PAYPAL_CLIENT_ID no definido en las variables de entorno.');
+            return;
+        }
+
+        // Si el script ya existe por algún motivo, solo renderizamos
+        if (window.paypal) {
+            renderPaypalButton();
+            return;
+        }
+
+        // Creamos el script dinámicamente
+        const s = document.createElement('script');
+        // IMPORTANTE: Asegúrate de que la currency coincida con lo que espera PayPal (USD es lo estándar)
+        s.src = `https://www.paypal.com/sdk/js?client-id=${cfg.clientId}&currency=USD`; 
+        s.async = true;
+        s.onload = () => {
+            console.log("SDK de PayPal cargado correctamente");
+            renderPaypalButton();
+        };
+        s.onerror = () => console.error("Error al cargar el SDK de PayPal. Revisa tu Client ID.");
+        document.head.appendChild(s);
+        
+    } catch (e) {
+        console.error('Error en la comunicación con el backend para PayPal', e);
+    }
+}
+
+function renderPaypalButton(){
+    if(paypalRendered || !paypalContainer || typeof paypal==='undefined') return;
+    paypalRendered=true;
+    const USD_RATE = 1100;
+    paypal.Buttons({
+        style:{ layout:'vertical', color:'gold', shape:'rect', label:'paypal', tagline:false },
+        createOrder: (data, actions)=>{
+            const totalUSDValue = (cartTotalValue / USD_RATE).toFixed(2);
+            return actions.order.create({ purchase_units:[{ amount:{ value: totalUSDValue, currency_code:'USD' }, description: cart.map(i=>i.name).join(', ') }] });
+        },
+        onApprove: (data, actions)=>actions.order.capture().then(details=>{
+            alert(`¡Pago completado! Comprador: ${details.payer.name.given_name}`);
+            window.location.href='success.html';
+        }),
+        onError: err=>{ console.error('Error PayPal:', err); alert('Hubo un error al procesar PayPal.'); },
+        onCancel: ()=>alert('Pago cancelado por el usuario.')
+    }).render('#paypal-container');
+}
+
+/* ===============================
+    MERCADOPAGO
+=============================== */
+async function pagarConMercadoPago(){
+    try {
+        const mpItems = cart
+            .filter(i=>i.id && PRODUCTS_MAP[i.id])
+            .map(i=>({ id:i.id, qty:i.qty || 1 }));
+
+        if(mpItems.length===0){
+            alert('Error: carrito vacío o inválido.');
+            return;
+        }
+
+        const res = await fetch('/create-preference', {
+            method:'POST',
+            headers:{ 'Content-Type':'application/json' },
+            body: JSON.stringify({ items: mpItems })
+        });
+
+        if(!res.ok){
+            alert('Error iniciando MercadoPago.');
+            return;
+        }
+
+        const data = await res.json();
+        if(data.init_point) window.location.href = data.init_point;
+        else alert('MercadoPago no devolvió init_point.');
+    } catch(e){
+        console.error('Error MercadoPago:', e);
+        alert('Error conectando con MercadoPago.');
+    }
+}
+
+/* ===============================
+    ACTION PAY BUTTON
+=============================== */
+actionPay.addEventListener('click', async ev=>{
+    ev.preventDefault();
+    actionPay.classList.add('loading');
+    actionPay.disabled=true;
+    try {
+        if(activeMethod==='mp') await pagarConMercadoPago();
+        else if(activeMethod==='paypal'){ if(window.paypal && !paypalRendered) renderPaypalButton(); else paypalContainer.scrollIntoView({behavior:'smooth'}); }
+        else if(activeMethod==='bank'||activeMethod==='crypto') showTooltipNear(actionPay,'Usá Enviar comprobante');
+    } catch(e){ console.error('Error en pago:', e); alert('Error iniciando el pago'); }
+    finally{ actionPay.classList.remove('loading'); actionPay.disabled=false; }
+});
+
+/* ===============================
+    BACK BUTTON
+=============================== */
+backBtn.addEventListener('click', ()=>{ saveCartToLocal(); window.location.href='index.html'; });
+
+/* ===============================
+    INIT
+=============================== */
+(function init(){
+    const urlCart = getCartFromURL();
+    if(Array.isArray(urlCart)&&urlCart.length>0){ cart=urlCart; saveCartToLocal(); }
+    else { const stored = loadCartFromLocal(); cart=(stored&&stored.length>0)?stored:[]; }
+    renderCartSummary();
+    updateMethodUI('mp');
+})();
+
+</script>
+</body>
+</html>
