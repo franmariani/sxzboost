@@ -71,3 +71,7 @@ Puedes usar la extensión Live Server de VS Code para previsualizar el sitio.
 [ ] Sistema de tickets para soporte técnico post-venta.
 
 © 2026 Franco Mariani · Cybersecurity Student
+
+
+![ezgif-6ae0974f95c87f30](https://github.com/user-attachments/assets/296a6159-060e-4e28-a8ef-131ffa744510)
+
