@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Checkout - SXZBOOST" />
+<meta name="theme-color" content="#0e0f14" />
+<title>Checkout | SXZBOOST</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="logo.png">
+<style>
+:root {
+  --bg: #0e0f14;
+  --bg-card: #151821;
+  --accent: #00ffcc;
+  --text: #e8ecf1;
+  --text-secondary: #a0a8b8;
+  --muted: #5a6270;
+  --whatsapp: #25d366;
+  --error: #ff4757;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Montserrat', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: radial-gradient(ellipse at center, #1a1d2e 0%, var(--bg) 70%);
+}
+
+.checkout-container {
+  width: 100%;
+  max-width: 520px;
+  background: var(--bg-card);
+  border-radius: 20px;
+  padding: 40px;
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+}
+
+.checkout-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.checkout-header img {
+  height: 50px;
+  margin-bottom: 16px;
+}
+
+.checkout-header h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.checkout-header p {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.order-items {
+  margin-bottom: 20px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.order-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.order-item:last-child {
+  border-bottom: none;
+}
+
+.order-item-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.order-item-name small {
+  color: var(--muted);
+  font-weight: 400;
+  margin-left: 6px;
+}
+
+.order-item-price {
+  font-weight: 700;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.order-summary {
+  border-top: 2px solid rgba(255,255,255,0.08);
+  padding-top: 16px;
+  margin-bottom: 24px;
+}
+
+.order-total {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.order-total span:last-child {
+  color: var(--accent);
+}
+
+.checkout-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px 28px;
+  border: none;
+  border-radius: 50px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  width: 100%;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.btn-primary:hover {
+  background: #fff;
+  transform: translateY(-2px);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--text);
+  border: 2px solid var(--muted);
+}
+
+.btn-outline:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.loader {
+  display: none;
+  text-align: center;
+  padding: 30px;
+}
+
+.loader.active {
+  display: block;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(0,255,204,0.2);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.error-msg {
+  display: none;
+  background: rgba(255,71,87,0.1);
+  color: var(--error);
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+  border: 1px solid rgba(255,71,87,0.2);
+}
+
+.empty-cart {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-secondary);
+}
+
+.empty-cart svg {
+  margin-bottom: 16px;
+  opacity: 0.3;
+}
+
+@media (max-width: 480px) {
+  .checkout-container {
+    padding: 24px;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="checkout-container">
+  <div class="checkout-header">
+    <img src="logo.png" alt="SXZBOOST">
+    <h1>Finalizar Compra</h1>
+    <p>Revisá tu pedido antes de pagar</p>
+  </div>
+
+  <div class="error-msg" id="error-msg"></div>
+
+  <div id="order-content">
+    <div class="order-items" id="order-items"></div>
+    
+    <div class="order-summary">
+      <div class="order-total">
+        <span>Total a pagar</span>
+        <span id="order-total">$0</span>
+      </div>
+    </div>
+
+    <div class="checkout-actions" id="checkout-actions">
+      <button class="btn btn-primary" id="pay-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+        Pagar con Mercado Pago
+      </button>
+      <a href="index.html" class="btn btn-outline" target="_self">
+        Volver a la tienda
+      </a>
+    </div>
+
+    <div class="loader" id="loader">
+      <div class="spinner"></div>
+      <p>Redirigiendo a Mercado Pago...</p>
+    </div>
+  </div>
+
+  <div class="empty-cart" id="empty-cart" style="display:none;">
+    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+    <h3>Tu carrito está vacío</h3>
+    <p>Agregá productos para continuar</p>
+    <br>
+    <a href="index.html" class="btn btn-primary" target="_self" style="margin-top:16px;">Volver a la tienda</a>
+  </div>
+</div>
+
+<script>
+(function() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const cartParam = urlParams.get('cart');
+  const totalParam = urlParams.get('total');
+  
+  const orderItems = document.getElementById('order-items');
+  const orderTotal = document.getElementById('order-total');
+  const orderContent = document.getElementById('order-content');
+  const emptyCart = document.getElementById('empty-cart');
+  const payBtn = document.getElementById('pay-btn');
+  const loader = document.getElementById('loader');
+  const checkoutActions = document.getElementById('checkout-actions');
+  const errorMsg = document.getElementById('error-msg');
+  
+  let cart = [];
+  
+  // Parse cart from URL or localStorage
+  if (cartParam) {
+    try {
+      cart = JSON.parse(decodeURIComponent(cartParam));
+    } catch(e) {
+      console.error('Error parsing cart:', e);
+    }
+  }
+  
+  if (cart.length === 0) {
+    // Try localStorage
+    try {
+      const stored = localStorage.getItem('sxzboost_cart');
+      if (stored) cart = JSON.parse(stored);
+    } catch(e) {}
+  }
+  
+  if (cart.length === 0) {
+    orderContent.style.display = 'none';
+    emptyCart.style.display = 'block';
+    return;
+  }
+  
+  // Render items
+  orderItems.innerHTML = cart.map(item => `
+    <div class="order-item">
+      <div class="order-item-name">
+        ${item.name}
+        <small>x${item.qty}</small>
+      </div>
+      <div class="order-item-price">$${(item.price * item.qty).toLocaleString('es-AR')}</div>
+    </div>
+  `).join('');
+  
+  // Calculate and show total
+  const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+  orderTotal.textContent = '$' + total.toLocaleString('es-AR');
+  
+  // Payment handler
+  payBtn.addEventListener('click', async () => {
+    payBtn.disabled = true;
+    checkoutActions.style.display = 'none';
+    loader.classList.add('active');
+    errorMsg.style.display = 'none';
+    
+    try {
+      const items = cart.map(item => ({
+        title: item.name,
+        unit_price: item.price,
+        quantity: item.qty,
+        currency_id: 'ARS'
+      }));
+      
+      const response = await fetch('/api/create-preference', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Error al crear la preferencia de pago');
+      }
+      
+      const data = await response.json();
+      
+      if (data.init_point) {
+        window.location.href = data.init_point;
+      } else if (data.sandbox_init_point) {
+        window.location.href = data.sandbox_init_point;
+      } else {
+        throw new Error('No se recibió URL de pago');
+      }
+    } catch (error) {
+      console.error('Checkout error:', error);
+      loader.classList.remove('active');
+      checkoutActions.style.display = 'flex';
+      payBtn.disabled = false;
+      errorMsg.textContent = 'Error: ' + error.message + '. Intentá de nuevo o contactanos por WhatsApp.';
+      errorMsg.style.display = 'block';
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
